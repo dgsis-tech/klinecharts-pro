@@ -11,3 +11,8 @@
 
 This repository is the **canonical place to edit** the KLineChart Pro fork for Candlex KLP.
 [`candlex-klp`](https://github.com/dgsis-tech/candlex-klp) only **consumes** a pinned git ref (tag/commit) via fetch+build or submodule — do not treat that host as the place to develop Pro sources.
+
+## Change control
+
+- Propose changes with a **Pull Request**; the operator validates/merges in the **Dev Container** (see [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md), [`CONTRIBUTING.md`](CONTRIBUTING.md)).
+- After merge, publish a **new tag** when candlex-klp should consume the change; bump `CHART_REF` there.

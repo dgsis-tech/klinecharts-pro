@@ -1,0 +1,7 @@
+# Git helpers for the Go Dev container
+
+alias gs='git status -sb'
+alias gd='git diff'
+alias gl='git log --oneline -20'
+alias gp='git push'
+alias gpull='git pull --ff-only'

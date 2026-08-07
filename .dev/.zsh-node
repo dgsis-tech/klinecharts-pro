@@ -1,0 +1,9 @@
+# Node helpers for the chart-dev container
+
+alias ni='npm install'
+alias nci='npm ci'
+alias nb='npm run build'
+alias nt='npm test'
+alias nd='npm run dev'
+
+node -v >/dev/null 2>&1 && echo "node $(node -v) · npm $(npm -v)" >/dev/null
