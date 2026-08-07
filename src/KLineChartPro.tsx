@@ -19,6 +19,7 @@ import { utils, Nullable, DeepPartial, Styles } from 'klinecharts'
 import ChartProComponent from './ChartProComponent'
 
 import { SymbolInfo, Period, ChartPro, ChartProOptions } from './types'
+import type { ChartWorkspace } from './workspace'
 
 const Logo = (
   <svg class="logo" viewBox="0 0 80 92">
@@ -127,5 +128,17 @@ export default class KLineChartPro implements ChartPro {
 
   getPeriod (): Period {
     return this._chartApi!.getPeriod()
+  }
+
+  exportWorkspace (): ChartWorkspace {
+    return this._chartApi!.exportWorkspace()
+  }
+
+  importWorkspace (workspace: ChartWorkspace | Record<string, unknown>): void {
+    this._chartApi!.importWorkspace(workspace)
+  }
+
+  subscribeWorkspaceChange (callback: () => void): () => void {
+    return this._chartApi!.subscribeWorkspaceChange(callback)
   }
 }
