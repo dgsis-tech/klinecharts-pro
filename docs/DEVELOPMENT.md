@@ -46,6 +46,29 @@ Artifacts under `dist/` (`klinecharts-pro.umd.js`, CSS, typings).
 
 See also [`CONTRIBUTING.md`](../CONTRIBUTING.md).
 
+## Workspace export / import (Candlex KLP persistence)
+
+Public API on `KLineChartPro` (also on the Solid chart ref):
+
+| Method | Role |
+| --- | --- |
+| `exportWorkspace()` | JSON: indicators + overlays + theme/locale/timezone/drawingBarVisible/styles/symbol/period. **No OHLC.** |
+| `importWorkspace(ws)` | Restore from that JSON (`schemaVersion` = `1`). Idempotent best-effort; overlays that cannot rehydrate are skipped. |
+| `subscribeWorkspaceChange(cb)` | Fires after indicator/overlay/settings mutations (for host auto-save). Returns unsubscribe. |
+
+Helpers exported: `WORKSPACE_SCHEMA_VERSION`, `normalizeWorkspace`, `emptyWorkspace`, types `ChartWorkspace`, …
+
+Limitations:
+
+- Overlay inventory is tracked from Pro UI create/remove paths (klinecharts has no public “list all overlays”).
+- Function fields and non-JSON styles are not persisted.
+- Round-trip of complex custom overlays depends on registered overlay templates.
+
+```bash
+npm test    # workspace normalize/round-trip unit tests
+npm run build
+```
+
 ## Relation to Candlex phases
 
 | Candlex phase | Fork involvement |

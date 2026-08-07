@@ -5,6 +5,10 @@ import solidPlugin from 'vite-plugin-solid'
 
 export default defineConfig({
   plugins: [solidPlugin()],
+  test: {
+    environment: 'node',
+    include: ['src/**/*.test.ts']
+  },
   build: {
     cssTarget: 'chrome61',
     sourcemap: true,

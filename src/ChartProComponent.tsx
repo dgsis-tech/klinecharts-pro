@@ -32,6 +32,15 @@ import {
 import { translateTimezone } from './widget/timezone-modal/data'
 
 import { SymbolInfo, Period, ChartProOptions, ChartPro } from './types'
+import {
+  applyIndicators,
+  applyOverlays,
+  buildWorkspace,
+  clearIndicators,
+  clearOverlays,
+  normalizeWorkspace,
+  ChartWorkspace
+} from './workspace'
 
 export interface ChartProComponentProps extends Required<Omit<ChartProOptions, 'container'>> {
   ref: (chart: ChartPro) => void
@@ -101,6 +110,31 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
     visible: false, indicatorName: '', paneId: '', calcParams: [] as Array<any>
   })
 
+  const overlayIds = new Set<string>()
+  const workspaceListeners = new Set<() => void>()
+
+  const notifyWorkspaceChange = (): void => {
+    workspaceListeners.forEach(cb => {
+      try { cb() } catch (e) {}
+    })
+  }
+
+  const trackOverlayId = (id: Nullable<string> | Array<Nullable<string>>): void => {
+    if (Array.isArray(id)) {
+      id.forEach(i => { if (i) overlayIds.add(i) })
+      return
+    }
+    if (id) {
+      overlayIds.add(id)
+    }
+  }
+
+  const createOverlayTracked = (overlay: any, paneId?: string): void => {
+    const id = widget?.createOverlay(overlay, paneId) ?? null
+    trackOverlayId(id as any)
+    notifyWorkspaceChange()
+  }
+
   props.ref({
     setTheme,
     getTheme: () => theme(),
@@ -108,12 +142,78 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
     getStyles: () => widget!.getStyles(),
     setLocale,
     getLocale: () => locale(),
-    setTimezone: (timezone: string) => { setTimezone({ key: timezone, text: translateTimezone(props.timezone, locale()) }) },
+    setTimezone: (timezone: string) => { setTimezone({ key: timezone, text: translateTimezone(timezone, locale()) }) },
     getTimezone: () => timezone().key,
     setSymbol,
     getSymbol: () => symbol(),
     setPeriod,
-    getPeriod: () => period()
+    getPeriod: () => period(),
+    exportWorkspace: (): ChartWorkspace => {
+      if (!widget) {
+        return normalizeWorkspace(null)
+      }
+      return buildWorkspace({
+        chart: widget,
+        overlayIds,
+        theme: theme(),
+        locale: locale(),
+        timezone: timezone().key,
+        drawingBarVisible: drawingBarVisible(),
+        symbol: symbol(),
+        period: period()
+      })
+    },
+    importWorkspace: (raw: ChartWorkspace | Record<string, unknown>): void => {
+      if (!widget) {
+        return
+      }
+      const ws = normalizeWorkspace(raw)
+      clearOverlays(widget, [...overlayIds])
+      overlayIds.clear()
+      clearIndicators(widget)
+      setMainIndicators([])
+      setSubIndicators({})
+
+      if (ws.theme) {
+        setTheme(ws.theme)
+        widget.setStyles(ws.theme)
+      }
+      if (ws.styles) {
+        setStyles(ws.styles)
+        widget.setStyles(ws.styles)
+      }
+      if (ws.locale) {
+        setLocale(ws.locale)
+        widget.setLocale(ws.locale)
+      }
+      if (ws.timezone) {
+        setTimezone({ key: ws.timezone, text: translateTimezone(ws.timezone, locale()) })
+        widget.setTimezone(ws.timezone)
+      }
+      if (typeof ws.drawingBarVisible === 'boolean') {
+        setDrawingBarVisible(ws.drawingBarVisible)
+      }
+      if (ws.symbol) {
+        setSymbol(ws.symbol)
+      }
+      if (ws.period) {
+        setPeriod(ws.period)
+      }
+
+      const { main, sub } = applyIndicators(widget, ws.indicators, (name, isStack, paneOptions) => {
+        return createIndicator(widget, name, isStack, paneOptions)
+      })
+      setMainIndicators(main)
+      setSubIndicators(sub)
+
+      const ids = applyOverlays(widget, ws.overlays)
+      ids.forEach(id => overlayIds.add(id))
+      notifyWorkspaceChange()
+    },
+    subscribeWorkspaceChange: (callback: () => void): (() => void) => {
+      workspaceListeners.add(callback)
+      return () => { workspaceListeners.delete(callback) }
+    }
   })
 
   const documentResize = () => {
@@ -286,6 +386,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
               delete newIndicators[data.indicatorName]
               setSubIndicators(newIndicators)
             }
+            notifyWorkspaceChange()
           }
         }
       }
@@ -464,6 +565,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
               newMainIndicators.splice(newMainIndicators.indexOf(data.name), 1)
             }
             setMainIndicators(newMainIndicators)
+            notifyWorkspaceChange()
           }}
           onSubIndicatorChange={data => {
             const newSubIndicators = { ...subIndicators() }
@@ -481,6 +583,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
               }
             }
             setSubIndicators(newSubIndicators)
+            notifyWorkspaceChange()
           }}/>
       </Show>
       <Show when={timezoneModalVisible()}>
@@ -498,6 +601,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
           onClose={() => { setSettingModalVisible(false) }}
           onChange={style => {
             widget?.setStyles(style)
+            notifyWorkspaceChange()
           }}
           onRestoreDefault={(options: SelectDataSourceItem[]) => {
             const style = {}
@@ -506,6 +610,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
               lodashSet(style, key, utils.formatValue(widgetDefaultStyles(), key))
             })
             widget?.setStyles(style)
+            notifyWorkspaceChange()
           }}
         />
       </Show>
@@ -524,6 +629,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
           onConfirm={(params)=> {
             const modalParams = indicatorSettingModalParams()
             widget?.overrideIndicator({ name: modalParams.indicatorName, calcParams: params }, modalParams.paneId)
+            notifyWorkspaceChange()
           }}
         />
       </Show>
@@ -559,11 +665,11 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
         <Show when={drawingBarVisible()}>
           <DrawingBar
             locale={props.locale}
-            onDrawingItemClick={overlay => { widget?.createOverlay(overlay) }}
-            onModeChange={mode => { widget?.overrideOverlay({ mode: mode as OverlayMode }) }}
-            onLockChange={lock => { widget?.overrideOverlay({ lock }) }}
-            onVisibleChange={visible => { widget?.overrideOverlay({ visible }) }}
-            onRemoveClick={(groupId) => { widget?.removeOverlay({ groupId }) }}/>
+            onDrawingItemClick={overlay => { createOverlayTracked(overlay) }}
+            onModeChange={mode => { widget?.overrideOverlay({ mode: mode as OverlayMode }); notifyWorkspaceChange() }}
+            onLockChange={lock => { widget?.overrideOverlay({ lock }); notifyWorkspaceChange() }}
+            onVisibleChange={visible => { widget?.overrideOverlay({ visible }); notifyWorkspaceChange() }}
+            onRemoveClick={(groupId) => { widget?.removeOverlay({ groupId }); notifyWorkspaceChange() }}/>
         </Show>
         <div
           ref={widgetRef}

@@ -14,6 +14,8 @@
 
 import { KLineData, Styles, DeepPartial } from 'klinecharts'
 
+import type { ChartWorkspace } from './workspace'
+
 export interface SymbolInfo {
   ticker: string
   name?: string
@@ -71,4 +73,11 @@ export interface ChartPro {
   getSymbol(): SymbolInfo
   setPeriod(period: Period): void
   getPeriod(): Period
+  /** Candlex KLP: export indicators/overlays/settings (no OHLC). */
+  exportWorkspace(): ChartWorkspace
+  /** Candlex KLP: restore workspace; symbol/period applied when present. */
+  importWorkspace(workspace: ChartWorkspace | Record<string, unknown>): void
+  /** Notify host on indicator/overlay/settings mutations (for auto-save). */
+  subscribeWorkspaceChange(callback: () => void): () => void
 }
+

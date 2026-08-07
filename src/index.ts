@@ -22,6 +22,8 @@ import KLineChartPro from './KLineChartPro'
 import { load } from './i18n'
 
 import { Datafeed, SymbolInfo, Period, DatafeedSubscribeCallback, ChartProOptions, ChartPro } from './types'
+import type { ChartWorkspace, WorkspaceIndicator, WorkspaceOverlay } from './workspace'
+import { WORKSPACE_SCHEMA_VERSION, normalizeWorkspace, emptyWorkspace } from './workspace'
 
 import './index.less'
 
@@ -30,9 +32,13 @@ overlays.forEach(o => { registerOverlay(o) })
 export {
   DefaultDatafeed,
   KLineChartPro,
-  load as loadLocales
+  load as loadLocales,
+  WORKSPACE_SCHEMA_VERSION,
+  normalizeWorkspace,
+  emptyWorkspace
 }
 
 export type {
-  Datafeed, SymbolInfo, Period, DatafeedSubscribeCallback, ChartProOptions, ChartPro
+  Datafeed, SymbolInfo, Period, DatafeedSubscribeCallback, ChartProOptions, ChartPro,
+  ChartWorkspace, WorkspaceIndicator, WorkspaceOverlay
 }
