@@ -2,3 +2,7 @@
 /dist
 /website
 /docs/.vitepress/cache
+# Dev kit (local)
+.dev/.env
+.dev/secrets/
+.DS_Store

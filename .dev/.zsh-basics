@@ -1,0 +1,35 @@
+GITSTATUS_LOG_LEVEL=DEBUG
+
+# Formato de fechas para History
+HIST_STAMPS="dd.mm.yyyy"
+
+## History command configuration
+setopt extended_history       # record timestamp of command in HISTFILE
+setopt hist_expire_dups_first # delete duplicates first when HISTFILE size exceeds HISTSIZE
+setopt hist_ignore_dups       # ignore duplicated commands history list
+setopt hist_ignore_space      # ignore commands that start with space
+setopt hist_verify            # show command with history expansion to user before running it
+setopt inc_append_history     # add commands to HISTFILE in order of execution
+setopt share_history          # share command history data
+
+# Aliases
+alias ..='cd ..'
+alias ...='cd ../..'
+alias -g G="| grep"
+alias T="tail -f"
+
+alias ls='ls -Alhv --color=auto'
+alias ll='ls -Alhv --color=auto'
+alias lt='ls -Alhv --color=auto'
+
+hist() {
+    if [[ "$1" == "a" ]]; then
+        history
+    elif [[ -n "$1" ]]; then
+        history G "$1"
+    else
+        history -30
+    fi
+}
+
+export PATH="${HOME}/.bashs:${PATH}"

@@ -1,0 +1,42 @@
+{
+    "name": "Candlex KLineChart Pro fork",
+    "image": "klp-chart-dev:latest",
+    "workspaceFolder": "/workspaces",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces,type=bind,consistency=cached",
+    "remoteUser": "root",
+    "initializeCommand": "bash .dev/init-host.sh",
+    "postStartCommand": "bash /workspaces/.dev/setup-dev.sh",
+    "runArgs": [
+        "--network=go-dev"
+    ],
+    "mounts": [
+        "source=${localWorkspaceFolder}/.dev/secrets,target=/host-ssh,type=bind,readonly"
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "mhutchie.git-graph",
+                "ms-azuretools.vscode-containers",
+                "ms-azuretools.vscode-docker"
+            ],
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "zsh",
+                "terminal.integrated.profiles.linux": {
+                    "zsh": {
+                        "path": "/bin/zsh"
+                    }
+                },
+                "workbench.colorTheme": "Dark Modern",
+                "workbench.preferredDarkColorTheme": "Dark Modern",
+                "workbench.preferredLightColorTheme": "Light Modern",
+                "window.autoDetectColorScheme": true,
+                "workbench.editor.showTabs": "multiple",
+                "workbench.editor.tabSizing": "shrink",
+                "workbench.editor.tabLocation": "top",
+                "workbench.startupEditor": "none"
+            }
+        }
+    }
+}

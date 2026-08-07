@@ -1,0 +1,36 @@
+#!/bin/zsh
+
+# Cargar ssh-agent persistido (configurado al iniciar el contenedor)
+if [[ -f ~/.ssh/agent.env ]]; then
+    # shellcheck disable=SC1090
+    source ~/.ssh/agent.env
+fi
+
+SETUP_DEV="${SETUP_DEV:-/workspaces/.dev/setup-dev.sh}"
+
+# Reconfigurar entorno manualmente desde la shell
+z.init() {
+    z.reload
+    z.ssh
+    z.git
+}
+
+z.reload() {
+    if bash -c "source '${SETUP_DEV}' && setup_zsh"; then
+        # shellcheck disable=SC1090
+        source "${HOME}/.zshrc"
+        echo "Configuration reloaded"
+    else
+        echo "Error: Could not copy files"
+        return 1
+    fi
+}
+
+z.ssh() {
+    bash -c "source '${SETUP_DEV}' && load_env && setup_ssh"
+    [[ -f ~/.ssh/agent.env ]] && source ~/.ssh/agent.env
+}
+
+z.git() {
+    bash -c "source '${SETUP_DEV}' && load_env && setup_gh && setup_git"
+}
