@@ -1,37 +1,20 @@
-<h1 align="center">KLineChart Pro</h1>
-<p align="center">Financial chart built out of the box based on KLineChart.</p>
+# klinecharts-pro (Candlex KLP product fork)
 
-<div align="center">
+Product fork of [KLineChart Pro](https://github.com/klinecharts/pro) for **Candlex KLP**.
 
-[![Version](https://badgen.net/npm/v/@klinecharts/pro)](https://www.npmjs.com/package/@klinecharts/pro)
-[![Size](https://badgen.net/bundlephobia/minzip/@klinecharts/pro@latest)](https://bundlephobia.com/package/@klinecharts/pro@latest)
-[![Typescript](https://badgen.net/npm/types/@klinecharts/pro)](dist/index.d.ts)
-[![LICENSE](https://badgen.net/github/license/klinecharts/pro)](LICENSE)
+- **Edit Pro sources here**, not inside [`candlex-klp`](https://github.com/dgsis-tech/candlex-klp).
+- Pins: lineage of `@klinecharts/pro@0.1.1` + **`klinecharts@9.8.12`** — see [`UPSTREAM.md`](UPSTREAM.md).
+- Consumers pin a tag/commit (e.g. `v0.1.1-candlex.0`) and run their own `make chart-build`.
 
-</div>
+## Build
 
-## Install
-### Using npm or yarn
 ```bash
-# using npm
-npm install @klinecharts/pro --save
-
-# using yarn
-yarn add @klinecharts/pro
+npm ci
+npm run build
 ```
 
-### Using unpkg or jsDelivr
-```html
-<!-- using unpkg -->
-<script src="https://unpkg.com/@klinecharts/pro/dist/klinecharts-pro.umd.js"></script>
+Artifacts: `dist/klinecharts-pro.js`, `dist/klinecharts-pro.umd.js`, `dist/klinecharts-pro.css`, typings.
 
-<!-- using jsdelivr -->
-<script src="https://cdn.jsdelivr.net/npm/@klinecharts/pro/dist/klinecharts-pro.umd.js"></script>
-```
+## License
 
-## Docs
-+ [中文](https://pro.klinecharts.com)
-+ [English](https://pro.klinecharts.com/en-US)
-
-## ©️ License
-KLineChart Pro is available under the Apache License V2.
+Apache License 2.0 — see [`LICENSE`](LICENSE).
