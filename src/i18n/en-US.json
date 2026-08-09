@@ -37,6 +37,8 @@
   "pvt": "PVT(Price and Volume Trend)",
   "ao": "AO(Awesome Oscillator)",
   "utc": "UTC",
+  "new_york": "New York",
+  "madrid": "Madrid",
   "honolulu": "(UTC-10) Honolulu",
   "juneau": "(UTC-8) Juneau",
   "los_angeles": "(UTC-7) Los Angeles",

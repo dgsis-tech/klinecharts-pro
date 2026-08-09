@@ -23,6 +23,8 @@ import { createTimezoneSelectOptions } from './data'
 export interface TimezoneModalProps {
   locale: string
   timezone: SelectDataSourceItem
+  /** When provided, replaces the full timezone list (REQ-005 curated / host override). */
+  timezoneOptions?: SelectDataSourceItem[]
   onClose: () => void
   onConfirm: (timezone: SelectDataSourceItem) => void
 }
@@ -30,7 +32,11 @@ export interface TimezoneModalProps {
 const TimezoneModal: Component<TimezoneModalProps> = props => {
   const [innerTimezone, setInnerTimezone] = createSignal(props.timezone)
 
-  const timezoneOptions = createMemo(() => createTimezoneSelectOptions(props.locale))
+  const timezoneOptions = createMemo(() =>
+    (props.timezoneOptions && props.timezoneOptions.length > 0)
+      ? props.timezoneOptions
+      : createTimezoneSelectOptions(props.locale)
+  )
 
   return (
     <Modal

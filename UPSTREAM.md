@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Product fork | [`github.com/dgsis-tech/klinecharts-pro`](https://github.com/dgsis-tech/klinecharts-pro) |
-| Fork package version | **`0.2.0`** (`package.json`; SemVer from this release onward) |
+| Fork package version | **`0.2.1`** (`package.json`; SemVer from this release onward) |
 | Upstream npm lineage | started from `@klinecharts/pro@0.1.1` |
 | Upstream git | [`klinecharts/pro`](https://github.com/klinecharts/pro) (GitHub fork parent) |
 | Chart core pin | **`klinecharts@9.8.12`** (Candlex D-12; do not move Pro onto 10.x in v0) |

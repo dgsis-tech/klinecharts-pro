@@ -71,7 +71,7 @@ export interface Datafeed {
 }
 
 /**
- * Period / widget toolbar chrome (REQ-002 / REQ-004).
+ * Period / widget toolbar chrome (REQ-002 / REQ-004 / REQ-005).
  * Candlex defaults hide TF chips + screenshot/fullscreen and use icon-only tools.
  */
 export interface PeriodBarOptions {
@@ -85,6 +85,11 @@ export interface PeriodBarOptions {
   toolsIconOnly?: boolean
   /** Trailing empty mount for host DOM (countdown). Default: `true`. */
   showToolbarAccessory?: boolean
+  /**
+   * Read-only current timeframe text beside the instrument name (REQ-005).
+   * Default: `false`. Candlex → `true` (chips stay off via `showPeriods: false`).
+   */
+  showPeriodLabel?: boolean
 }
 
 /** Resolved Candlex defaults for PeriodBarOptions. */
@@ -93,11 +98,18 @@ export const DEFAULT_PERIOD_BAR_OPTIONS: Required<PeriodBarOptions> = {
   showScreenshot: false,
   showFullscreen: false,
   toolsIconOnly: true,
-  showToolbarAccessory: true
+  showToolbarAccessory: true,
+  showPeriodLabel: false
 }
 
 export function resolvePeriodBarOptions (opts?: PeriodBarOptions): Required<PeriodBarOptions> {
   return { ...DEFAULT_PERIOD_BAR_OPTIONS, ...(opts ?? {}) }
+}
+
+/** Host timezone option row (modal Select). */
+export interface TimezoneOption {
+  key: string
+  text: string
 }
 
 export interface ChartProOptions {
@@ -114,8 +126,15 @@ export interface ChartProOptions {
   mainIndicators?: string[]
   subIndicators?: string[]
   datafeed: Datafeed
-  /** Toolbar chrome options (REQ-002 / REQ-004). */
+  /** Toolbar chrome options (REQ-002 / REQ-004 / REQ-005). */
   periodBar?: PeriodBarOptions
+  /**
+   * When true, timezone modal only lists Etc/UTC, America/New_York, Europe/Madrid.
+   * Omitted / out-of-list timezone falls back to `Etc/UTC` (REQ-005).
+   */
+  timezoneCurated?: boolean
+  /** Full override for timezone modal options (wins over `timezoneCurated`). */
+  timezoneSelectOptions?: TimezoneOption[]
 }
 
 export interface ChartPro {

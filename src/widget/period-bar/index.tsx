@@ -85,6 +85,12 @@ const PeriodBar: Component<PeriodBarProps> = props => {
           <span>{props.symbol.shortName ?? props.symbol.name ?? props.symbol.ticker}</span>
         </div>
       </Show>
+      <Show when={opts().showPeriodLabel && props.period?.text}>
+        <span class="period-label" aria-hidden="false" aria-label={props.period.text}>
+          <span class="period-label-sep">·</span>
+          {props.period.text}
+        </span>
+      </Show>
       <Show when={opts().showPeriods}>
         <For each={props.periods}>
           {(p) => (

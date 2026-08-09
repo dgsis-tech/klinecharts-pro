@@ -1,6 +1,6 @@
 # REQ-005 — Period label beside symbol + curated timezones (Candlex KLP D-31)
 
-> **Status:** OPEN — docs request; implement in this fork before tagging  
+> **Status:** IMPLEMENTED — awaiting operator merge + annotated tag `v0.2.1`  
 > **Requested by:** Candlex KLP Planner (docs-only PR; do **not** treat this PR as “docs complete”)  
 > **Consumer:** [candlex-klp](https://github.com/dgsis-tech/candlex-klp) · decision **D-31** / backlog **KLP-029**  
 > **Blocked consumer pin:** `v0.2.0`  
@@ -85,25 +85,52 @@ If workspace restores a timezone **outside** the curated list while curated mode
 
 ## Final API
 
-> Fill after implementation. Suggested consume tag: **`v0.2.1`**.
+> Shipped on PR #8. Package **`0.2.1`**. Suggested consume tag: **`v0.2.1`**.
 
 ```ts
 interface PeriodBarOptions {
-  showPeriods?: boolean
-  showScreenshot?: boolean
-  showFullscreen?: boolean
-  toolsIconOnly?: boolean
-  showToolbarAccessory?: boolean
-  showPeriodLabel?: boolean  // NEW — default false; Candlex true
+  showPeriods?: boolean            // default false
+  showScreenshot?: boolean         // default false
+  showFullscreen?: boolean         // default false
+  toolsIconOnly?: boolean          // default true
+  showToolbarAccessory?: boolean   // default true
+  showPeriodLabel?: boolean        // NEW — default false; Candlex → true
+}
+
+interface TimezoneOption {
+  key: string   // IANA
+  text: string  // display
 }
 
 interface ChartProOptions {
   periodBar?: PeriodBarOptions
-  timezone?: string  // Candlex: 'Etc/UTC' | 'America/New_York' | 'Europe/Madrid'
-  timezoneCurated?: boolean  // NEW — or timezoneSelectOptions override
+  timezone?: string
+  /** When true: modal = Etc/UTC, America/New_York, Europe/Madrid only. */
+  timezoneCurated?: boolean
+  /** Optional full override of modal options (wins over timezoneCurated). */
+  timezoneSelectOptions?: TimezoneOption[]
   // …
 }
 
+/** Exported helpers */
+const CURATED_TIMEZONE_KEYS: readonly ['Etc/UTC', 'America/New_York', 'Europe/Madrid']
+const DEFAULT_CURATED_TIMEZONE = 'Etc/UTC'
+function resolveTimezoneKey(key: string | undefined | null, opts?: {
+  curated?: boolean
+  allowedKeys?: string[]
+}): string
+```
+
+### Defaults (R3)
+
+| Mode | Host omits `timezone` | Host passes out-of-list key |
+| --- | --- | --- |
+| `timezoneCurated: true` (or non-empty `timezoneSelectOptions`) | **`Etc/UTC`** | **`Etc/UTC`** (no crash) |
+| unrestricted (default) | `Asia/Shanghai` (legacy) | kept as-is |
+
+`setTimezone` / `importWorkspace` use the same `resolveTimezoneKey` path.
+
+```js
 const chart = new klinechartspro.KLineChartPro({
   container: el,
   symbol,
@@ -119,13 +146,18 @@ const chart = new klinechartspro.KLineChartPro({
   },
   datafeed
 })
+// Label shows "· 5m" beside instrument; updates on:
+chart.setPeriod({ multiplier: 15, timespan: 'minute', text: '15m' })
+// Modal only UTC / New York / Madrid; selecting NY → America/New_York
 ```
 
 ## Acceptance checklist
 
-- [ ] With `showPeriodLabel: true` and `showPeriods: false`, instrument shows current TF text; no TF chips
-- [ ] Label updates after `setPeriod`
-- [ ] Timezone modal shows **only** UTC / New York / Madrid when curated
-- [ ] Selecting New York or Madrid applies `America/New_York` / `Europe/Madrid`
-- [ ] Typings + build + Final API + requests index updated
-- [ ] Tag published for candlex-klp pin bump
+- [x] With `showPeriodLabel: true` and `showPeriods: false`, instrument shows current TF text; no TF chips
+- [x] Label updates after `setPeriod` (bound to `period()` signal)
+- [x] Timezone modal shows **only** UTC / New York / Madrid when curated
+- [x] Selecting New York or Madrid applies `America/New_York` / `Europe/Madrid`
+- [x] Out-of-list workspace TZ while curated → `Etc/UTC` (unit-tested)
+- [x] Prefer `Etc/UTC` default when curated and host omits timezone (documented + unit-tested)
+- [x] Typings + build + Final API + requests index updated
+- [ ] Tag published for candlex-klp pin bump (`v0.2.1` — operator)

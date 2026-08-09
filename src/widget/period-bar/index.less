@@ -46,6 +46,29 @@
       margin-right: 6px;
     }
   }
+  .period-label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 100%;
+    padding: 0 12px 0 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--klinecharts-pro-text-color);
+    opacity: 0.72;
+    box-sizing: border-box;
+    border-right: solid 1px var(--klinecharts-pro-border-color);
+    pointer-events: none;
+    user-select: none;
+    .period-label-sep {
+      margin: 0 8px 0 4px;
+      opacity: 0.8;
+    }
+  }
+  .symbol + .period-label {
+    padding-left: 0;
+    border-left: none;
+  }
   .item {
     transition: all 0.2s;
     box-sizing: border-box;

@@ -29,9 +29,9 @@ import {
   ScreenshotModal, IndicatorSettingModal, SymbolSearchModal
 } from './widget'
 
-import { translateTimezone } from './widget/timezone-modal/data'
+import { translateTimezone, resolveTimezoneKey, resolveTimezoneSelectOptions } from './widget/timezone-modal/data'
 
-import { SymbolInfo, Period, ChartProOptions, ChartPro, PeriodBarOptions } from './types'
+import { SymbolInfo, Period, ChartProOptions, ChartPro, PeriodBarOptions, TimezoneOption } from './types'
 import {
   applyIndicators,
   applyOverlays,
@@ -43,9 +43,11 @@ import {
 } from './workspace'
 import { periodsEqual, symbolsEqual, SymbolPeriodReloadGate } from './symbolPeriodReload'
 
-export interface ChartProComponentProps extends Required<Omit<ChartProOptions, 'container' | 'periodBar'>> {
+export interface ChartProComponentProps extends Required<Omit<ChartProOptions, 'container' | 'periodBar' | 'timezoneCurated' | 'timezoneSelectOptions'>> {
   ref: (chart: ChartPro) => void
   periodBar?: PeriodBarOptions
+  timezoneCurated?: boolean
+  timezoneSelectOptions?: TimezoneOption[]
 }
 
 interface PrevSymbolPeriod {
@@ -85,6 +87,16 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
   const reloadGate = new SymbolPeriodReloadGate()
   let toolbarAccessoryEl: HTMLElement | null = null
 
+  const tzResolveOpts = () => ({
+    curated: props.timezoneCurated === true,
+    allowedKeys: props.timezoneSelectOptions?.map(o => o.key)
+  })
+
+  const toTimezoneItem = (key: string): SelectDataSourceItem => {
+    const resolved = resolveTimezoneKey(key, tzResolveOpts())
+    return { key: resolved, text: translateTimezone(resolved, locale()) }
+  }
+
   const [theme, setTheme] = createSignal(props.theme)
   const [styles, setStyles] = createSignal(props.styles)
   const [locale, setLocale] = createSignal(props.locale)
@@ -96,7 +108,15 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
   const [subIndicators, setSubIndicators] = createSignal({})
 
   const [timezoneModalVisible, setTimezoneModalVisible] = createSignal(false)
-  const [timezone, setTimezone] = createSignal<SelectDataSourceItem>({ key: props.timezone, text: translateTimezone(props.timezone, props.locale) })
+  const [timezone, setTimezone] = createSignal<SelectDataSourceItem>(
+    (() => {
+      const resolved = resolveTimezoneKey(props.timezone, {
+        curated: props.timezoneCurated === true,
+        allowedKeys: props.timezoneSelectOptions?.map(o => o.key)
+      })
+      return { key: resolved, text: translateTimezone(resolved, props.locale) }
+    })()
+  )
 
   const [settingModalVisible, setSettingModalVisible] = createSignal(false)
   const [widgetDefaultStyles, setWidgetDefaultStyles] = createSignal<Styles>()
@@ -150,7 +170,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
     getStyles: () => widget!.getStyles(),
     setLocale,
     getLocale: () => locale(),
-    setTimezone: (timezone: string) => { setTimezone({ key: timezone, text: translateTimezone(timezone, locale()) }) },
+    setTimezone: (timezone: string) => { setTimezone(toTimezoneItem(timezone)) },
     getTimezone: () => timezone().key,
     setSymbol,
     getSymbol: () => symbol(),
@@ -195,8 +215,9 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
         widget.setLocale(ws.locale)
       }
       if (ws.timezone) {
-        setTimezone({ key: ws.timezone, text: translateTimezone(ws.timezone, locale()) })
-        widget.setTimezone(ws.timezone)
+        const item = toTimezoneItem(ws.timezone)
+        setTimezone(item)
+        widget.setTimezone(item.key)
       }
       if (typeof ws.drawingBarVisible === 'boolean') {
         setDrawingBarVisible(ws.drawingBarVisible)
@@ -669,8 +690,15 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
         <TimezoneModal
           locale={props.locale}
           timezone={timezone()}
+          timezoneOptions={resolveTimezoneSelectOptions(props.locale, {
+            curated: props.timezoneCurated === true,
+            timezoneSelectOptions: props.timezoneSelectOptions
+          })}
           onClose={() => { setTimezoneModalVisible(false) }}
-          onConfirm={setTimezone}
+          onConfirm={(tz) => {
+            setTimezone(toTimezoneItem(tz.key))
+            notifyWorkspaceChange()
+          }}
         />
       </Show>
       <Show when={settingModalVisible()}>
