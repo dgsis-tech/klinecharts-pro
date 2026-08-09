@@ -26,13 +26,17 @@ Prefer **one PR**: request docs first, then implementation commits on the same b
 - [ ] No secrets in `.dev/.env` committed
 - [ ] Notes for candlex-klp: whether a **new tag** is required and suggested name
 
-## Tagging for consumers
+## Versioning + tagging for consumers
 
-After merge, if candlex-klp should pick up the change:
+1. Bump `package.json` `version` in the release PR (SemVer — see [`UPSTREAM.md`](UPSTREAM.md)).
+2. After merge, publish an annotated tag that **matches** the package version:
 
 ```bash
-git tag -a v0.1.1-candlex.N -m "candlex consume pin"
-git push origin v0.1.1-candlex.N
+# example after bumping package.json to 0.2.0
+git tag -a v0.2.0 -m "v0.2.0 — candlex consume pin"
+git push origin v0.2.0
 ```
+
+Do **not** invent new `v0.1.1-candlex.N` tags (legacy only through `v0.1.1-candlex.2`).
 
 Then update candlex-klp `third_party/CHART_PIN` / `CHART_REF` in a separate candlex-klp PR or phase.

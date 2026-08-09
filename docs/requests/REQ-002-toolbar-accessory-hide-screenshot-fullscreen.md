@@ -1,10 +1,10 @@
 # REQ-002 — Toolbar trailing accessory slot + hide screenshot/fullscreen (Candlex KLP phase-18.1)
 
-> **Status:** IMPLEMENTED — awaiting operator merge + tag `v0.1.1-candlex.3`  
+> **Status:** IMPLEMENTED — awaiting operator merge + tag `v0.2.0`  
 > **Requested by:** Candlex KLP Planner (docs-only PR; do **not** treat this PR as “docs complete”)  
 > **Consumer:** [candlex-klp](https://github.com/dgsis-tech/candlex-klp) · phase [`phase-18.1.md`](https://github.com/dgsis-tech/candlex-klp/blob/main/docs/phases/phase-18.1.md)  
 > **Blocked consumer pin:** `v0.1.1-candlex.2`  
-> **Suggested consume tag after merge:** `v0.1.1-candlex.3` (operator chooses final `N`)  
+> **Suggested consume tag after merge:** `v0.2.0`  
 > **Unlocks:** candlex-klp phase-18 (countdown at toolbar end · D-29)
 
 ## Purpose of this document
@@ -91,7 +91,7 @@ Public TypeScript typings and UMD `ChartPro` surface must expose R1/R2. Smoke-fr
 
 ## Final API
 
-> Shipped with REQ-003 / REQ-004 on branch `feat/candlex-req-002-003-004`. Suggested consume tag: **`v0.1.1-candlex.3`**.
+> Shipped with REQ-003 / REQ-004 on branch `feat/candlex-req-002-003-004`. Suggested consume tag: **`v0.2.0`**.
 
 ```ts
 interface PeriodBarOptions {

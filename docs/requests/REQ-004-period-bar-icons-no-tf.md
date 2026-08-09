@@ -1,10 +1,10 @@
 # REQ-004 — Period bar: no TF chips; icon-only tools (Candlex KLP D-30)
 
-> **Status:** IMPLEMENTED — awaiting operator merge + tag `v0.1.1-candlex.3`  
+> **Status:** IMPLEMENTED — awaiting operator merge + tag `v0.2.0`  
 > **Requested by:** Candlex KLP Planner (docs-only PR; do **not** treat this PR as “docs complete”)  
 > **Consumer:** [candlex-klp](https://github.com/dgsis-tech/candlex-klp) · decision **D-30** / backlog **KLP-027**  
 > **Blocked consumer pin:** `v0.1.1-candlex.2`  
-> **Suggested consume tag after merge:** same train as REQ-002/003 (`v0.1.1-candlex.3`+)  
+> **Suggested consume tag after merge:** same train as REQ-002/003 (`v0.2.0`)  
 > **Overlaps:** REQ-002 (hide screenshot/fullscreen) — implement together or satisfy R2 here and mark REQ-002 R1 done
 
 ## Purpose
@@ -75,7 +75,7 @@ Exact names in Final API.
 
 ## Final API
 
-> Shipped with REQ-002 / REQ-003. Suggested consume tag: **`v0.1.1-candlex.3`**.
+> Shipped with REQ-002 / REQ-003. Suggested consume tag: **`v0.2.0`**.
 
 ```ts
 interface PeriodBarOptions {

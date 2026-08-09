@@ -1,10 +1,10 @@
 # REQ-003 — Reliable symbol/period reload (fix `loading` race) (Candlex KLP phase-19)
 
-> **Status:** IMPLEMENTED — awaiting operator merge + tag `v0.1.1-candlex.3`  
+> **Status:** IMPLEMENTED — awaiting operator merge + tag `v0.2.0`  
 > **Requested by:** Candlex KLP Planner (docs-only PR; do **not** treat this PR as “docs complete”)  
 > **Consumer:** [candlex-klp](https://github.com/dgsis-tech/candlex-klp) · phase [`phase-19.md`](https://github.com/dgsis-tech/candlex-klp/blob/main/docs/phases/phase-19.md)  
 > **Blocked consumer pin:** `v0.1.1-candlex.2`  
-> **Suggested consume tag after merge:** `v0.1.1-candlex.3` or `.4` if REQ-002 already took `.3` (operator chooses)  
+> **Suggested consume tag after merge:** `v0.2.0`  
 > **Related:** REQ-002 (toolbar) can ship in the same or adjacent tag
 
 ## Purpose
@@ -63,7 +63,7 @@ Fill **Final API**; green tests/build; update `docs/requests/README.md`.
 
 ## Final API
 
-> Shipped with REQ-002 / REQ-004. Suggested consume tag: **`v0.1.1-candlex.3`**.
+> Shipped with REQ-002 / REQ-004. Suggested consume tag: **`v0.2.0`**.
 
 ### Behavior (no new options required)
 
