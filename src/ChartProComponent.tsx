@@ -31,7 +31,7 @@ import {
 
 import { translateTimezone } from './widget/timezone-modal/data'
 
-import { SymbolInfo, Period, ChartProOptions, ChartPro } from './types'
+import { SymbolInfo, Period, ChartProOptions, ChartPro, PeriodBarOptions } from './types'
 import {
   applyIndicators,
   applyOverlays,
@@ -41,9 +41,11 @@ import {
   normalizeWorkspace,
   ChartWorkspace
 } from './workspace'
+import { periodsEqual, symbolsEqual, SymbolPeriodReloadGate } from './symbolPeriodReload'
 
-export interface ChartProComponentProps extends Required<Omit<ChartProOptions, 'container'>> {
+export interface ChartProComponentProps extends Required<Omit<ChartProOptions, 'container' | 'periodBar'>> {
   ref: (chart: ChartPro) => void
+  periodBar?: PeriodBarOptions
 }
 
 interface PrevSymbolPeriod {
@@ -80,7 +82,8 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
 
   let priceUnitDom: HTMLElement
 
-  let loading = false
+  const reloadGate = new SymbolPeriodReloadGate()
+  let toolbarAccessoryEl: HTMLElement | null = null
 
   const [theme, setTheme] = createSignal(props.theme)
   const [styles, setStyles] = createSignal(props.styles)
@@ -198,10 +201,10 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
       if (typeof ws.drawingBarVisible === 'boolean') {
         setDrawingBarVisible(ws.drawingBarVisible)
       }
-      if (ws.symbol) {
+      if (ws.symbol && !symbolsEqual(ws.symbol, symbol())) {
         setSymbol(ws.symbol)
       }
-      if (ws.period) {
+      if (ws.period && !periodsEqual(ws.period, period())) {
         setPeriod(ws.period)
       }
 
@@ -253,6 +256,29 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
       }
       overlayIds.delete(id)
       notifyWorkspaceChange()
+    },
+    getToolbarAccessoryContainer: (): HTMLElement | null => {
+      return toolbarAccessoryEl
+    },
+    createIndicator: (name: string, isStack?: boolean, paneOptions?: { id?: string }): string | null => {
+      if (!widget || !name) {
+        return null
+      }
+      const paneId = createIndicator(widget, name, isStack, paneOptions as PaneOptions | undefined)
+      if (!paneId) {
+        return null
+      }
+      if (paneOptions?.id === 'candle_pane' || paneId === 'candle_pane') {
+        const next = [...mainIndicators()]
+        if (!next.includes(name)) {
+          next.push(name)
+          setMainIndicators(next)
+        }
+      } else {
+        setSubIndicators({ ...subIndicators(), [name]: paneId })
+      }
+      notifyWorkspaceChange()
+      return paneId
     }
   })
 
@@ -384,14 +410,17 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
     })
     setSubIndicators(subIndicatorMap)
     widget?.loadMore(timestamp => {
-      loading = true
+      const token = reloadGate.beginLoadMore()
       const get = async () => {
         const p = period()
+        const s = symbol()
         const [to] = adjustFromTo(p, timestamp!, 1)
         const [from] = adjustFromTo(p, to, 500)
-        const kLineDataList = await props.datafeed.getHistoryKLineData(symbol(), p, from, to)
+        const kLineDataList = await props.datafeed.getHistoryKLineData(s, p, from, to)
+        if (!reloadGate.isLoadMoreCurrent(token)) {
+          return
+        }
         widget?.applyMoreData(kLineDataList, kLineDataList.length > 0)
-        loading = false
       }
       get()
     })
@@ -450,28 +479,38 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
   })
 
   createEffect((prev?: PrevSymbolPeriod) => {
-    if (!loading) {
-      if (prev) {
+    const s = symbol()
+    const p = period()
+    const gen = reloadGate.beginHistory()
+    if (prev) {
+      try {
         props.datafeed.unsubscribe(prev.symbol, prev.period)
+      } catch {
+        // ignore
       }
-      const s = symbol()
-      const p = period()
-      loading = true
-      setLoadingVisible(true)
-      const get = async () => {
+    }
+    setLoadingVisible(true)
+    const get = async () => {
+      try {
         const [from, to] = adjustFromTo(p, new Date().getTime(), 500)
         const kLineDataList = await props.datafeed.getHistoryKLineData(s, p, from, to)
+        if (!reloadGate.isHistoryCurrent(gen)) {
+          return
+        }
         widget?.applyNewData(kLineDataList, kLineDataList.length > 0)
         props.datafeed.subscribe(s, p, data => {
-          widget?.updateData(data)
+          if (reloadGate.isHistoryCurrent(gen)) {
+            widget?.updateData(data)
+          }
         })
-        loading = false
-        setLoadingVisible(false)
+      } finally {
+        if (reloadGate.isHistoryCurrent(gen)) {
+          setLoadingVisible(false)
+        }
       }
-      get()
-      return { symbol: s, period: p }
     }
-    return prev
+    get()
+    return { symbol: s, period: p }
   })
 
   createEffect(() => {
@@ -679,6 +718,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
         spread={drawingBarVisible()}
         period={period()}
         periods={props.periods}
+        periodBar={props.periodBar}
         onMenuClick={async () => {
           try {
             await startTransition(() => setDrawingBarVisible(!drawingBarVisible()))
@@ -696,6 +736,7 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
             setScreenshotUrl(url)
           }
         }}
+        onAccessoryRef={(el) => { toolbarAccessoryEl = el }}
       />
       <div
         class="klinecharts-pro-content">

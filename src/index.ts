@@ -21,7 +21,7 @@ import KLineChartPro from './KLineChartPro'
 
 import { load } from './i18n'
 
-import { Datafeed, SymbolInfo, Period, DatafeedSubscribeCallback, ChartProOptions, ChartPro, IndicatorOverride, OverlayCreateInput } from './types'
+import { Datafeed, SymbolInfo, Period, DatafeedSubscribeCallback, ChartProOptions, ChartPro, IndicatorOverride, OverlayCreateInput, PeriodBarOptions, DEFAULT_PERIOD_BAR_OPTIONS, resolvePeriodBarOptions } from './types'
 import type { ChartWorkspace, WorkspaceIndicator, WorkspaceOverlay } from './workspace'
 import { WORKSPACE_SCHEMA_VERSION, normalizeWorkspace, emptyWorkspace } from './workspace'
 
@@ -35,11 +35,13 @@ export {
   load as loadLocales,
   WORKSPACE_SCHEMA_VERSION,
   normalizeWorkspace,
-  emptyWorkspace
+  emptyWorkspace,
+  DEFAULT_PERIOD_BAR_OPTIONS,
+  resolvePeriodBarOptions
 }
 
 export type {
   Datafeed, SymbolInfo, Period, DatafeedSubscribeCallback, ChartProOptions, ChartPro,
-  IndicatorOverride, OverlayCreateInput,
+  IndicatorOverride, OverlayCreateInput, PeriodBarOptions,
   ChartWorkspace, WorkspaceIndicator, WorkspaceOverlay
 }

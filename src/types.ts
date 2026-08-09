@@ -70,6 +70,36 @@ export interface Datafeed {
   unsubscribe (symbol: SymbolInfo, period: Period): void
 }
 
+/**
+ * Period / widget toolbar chrome (REQ-002 / REQ-004).
+ * Candlex defaults hide TF chips + screenshot/fullscreen and use icon-only tools.
+ */
+export interface PeriodBarOptions {
+  /** Render timeframe chips from `periods`. Default: `false`. */
+  showPeriods?: boolean
+  /** Render screenshot tool. Default: `false`. */
+  showScreenshot?: boolean
+  /** Render fullscreen tool. Default: `false`. */
+  showFullscreen?: boolean
+  /** Indicator / timezone / setting as icons only (+ aria-label). Default: `true`. */
+  toolsIconOnly?: boolean
+  /** Trailing empty mount for host DOM (countdown). Default: `true`. */
+  showToolbarAccessory?: boolean
+}
+
+/** Resolved Candlex defaults for PeriodBarOptions. */
+export const DEFAULT_PERIOD_BAR_OPTIONS: Required<PeriodBarOptions> = {
+  showPeriods: false,
+  showScreenshot: false,
+  showFullscreen: false,
+  toolsIconOnly: true,
+  showToolbarAccessory: true
+}
+
+export function resolvePeriodBarOptions (opts?: PeriodBarOptions): Required<PeriodBarOptions> {
+  return { ...DEFAULT_PERIOD_BAR_OPTIONS, ...(opts ?? {}) }
+}
+
 export interface ChartProOptions {
   container: string | HTMLElement
   styles?: DeepPartial<Styles>
@@ -84,6 +114,8 @@ export interface ChartProOptions {
   mainIndicators?: string[]
   subIndicators?: string[]
   datafeed: Datafeed
+  /** Toolbar chrome options (REQ-002 / REQ-004). */
+  periodBar?: PeriodBarOptions
 }
 
 export interface ChartPro {
@@ -121,5 +153,15 @@ export interface ChartPro {
   overrideOverlay(override: { id: string } & Record<string, unknown>): void
   /** Remove overlay by id and drop it from workspace tracking. */
   removeOverlay(id: string): void
+  /**
+   * Trailing toolbar accessory mount (REQ-002). Host appends countdown DOM here.
+   * Returns null if the slot is disabled or not yet mounted.
+   */
+  getToolbarAccessoryContainer(): HTMLElement | null
+  /**
+   * Create an indicator with Pro tooltip icons (REQ-003 optional).
+   * Returns pane id, or null on failure.
+   */
+  createIndicator(name: string, isStack?: boolean, paneOptions?: { id?: string }): string | null
 }
 

@@ -70,6 +70,7 @@ export default class KLineChartPro implements ChartPro {
           timezone={options.timezone ?? 'Asia/Shanghai'}
           mainIndicators={options.mainIndicators ?? ['MA']}
           subIndicators={options.subIndicators ?? ['VOL']}
+          periodBar={options.periodBar}
           datafeed={options.datafeed}/>
       ),
       this._container
@@ -160,5 +161,13 @@ export default class KLineChartPro implements ChartPro {
 
   removeOverlay (id: string): void {
     this._chartApi!.removeOverlay(id)
+  }
+
+  getToolbarAccessoryContainer (): HTMLElement | null {
+    return this._chartApi!.getToolbarAccessoryContainer()
+  }
+
+  createIndicator (name: string, isStack?: boolean, paneOptions?: { id?: string }): string | null {
+    return this._chartApi!.createIndicator(name, isStack, paneOptions)
   }
 }
