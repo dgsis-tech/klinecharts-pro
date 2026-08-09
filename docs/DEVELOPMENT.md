@@ -68,7 +68,24 @@ Helpers exported: `WORKSPACE_SCHEMA_VERSION`, `normalizeWorkspace`, `emptyWorksp
 
 **Rays (phase-10):** template name `horizontalRayLine` with two points `{ timestamp, value }` at the same price (second point to the right sets ray direction). Stroke via `styles.line.color` / `styles.line.size`.
 
-Full signatures + host smoke: [`REQ-001` Final API](requests/REQ-001-ma-boll-styles-and-ray-api.md#final-api-fill-after-implementation). Suggested consume tag: `v0.1.1-candlex.2`.
+Full signatures + host smoke: [`REQ-001` Final API](requests/REQ-001-ma-boll-styles-and-ray-api.md#final-api). Suggested consume tag: `v0.1.1-candlex.2`.
+
+### Period bar chrome + reload (REQ-002 / REQ-003 / REQ-004)
+
+Constructor option `periodBar` (Candlex defaults):
+
+| Option | Default | Role |
+| --- | --- | --- |
+| `showPeriods` | `false` | Hide TF chips (host owns TF UI) |
+| `showScreenshot` / `showFullscreen` | `false` | Do not mount those tools |
+| `toolsIconOnly` | `true` | Indicator / timezone / setting as icons + `aria-label` |
+| `showToolbarAccessory` | `true` | Trailing host mount |
+
+`getToolbarAccessoryContainer()` → `HTMLElement | null` for countdown DOM.  
+`createIndicator(name, isStack?, paneOptions?)` → pane id (avoids full `importWorkspace` for MA/BOLL).  
+`setPeriod` / `setSymbol` never silently drop while history/`loadMore` is in flight (generation gate).
+
+Suggested consume tag for this train: **`v0.1.1-candlex.3`**. Specs: [REQ-002](requests/REQ-002-toolbar-accessory-hide-screenshot-fullscreen.md), [REQ-003](requests/REQ-003-reliable-symbol-period-reload.md), [REQ-004](requests/REQ-004-period-bar-icons-no-tf.md).
 
 Limitations:
 
@@ -77,7 +94,7 @@ Limitations:
 - Round-trip of complex custom overlays depends on registered overlay templates.
 
 ```bash
-npm test    # workspace normalize/round-trip unit tests
+npm test    # workspace + reload-gate unit tests
 npm run build
 ```
 
@@ -88,6 +105,10 @@ npm run build
 | phase-3 | Bootstrap fork + pin; candlex-klp mount + stub feed |
 | phase-4 | DataHub datafeed (mostly host; fork may need datafeed adapter hooks) |
 | phase-5 | Persistence hooks (export/import indicators/overlays) — shipped as `v0.1.1-candlex.1` |
-| phase-9.1 | **IMPLEMENTED** [REQ-001](requests/REQ-001-ma-boll-styles-and-ray-api.md) — MA/BOLL styles + Ray API → suggested tag `v0.1.1-candlex.2` (operator merges/tags) |
+| phase-9.1 | **IMPLEMENTED** [REQ-001](requests/REQ-001-ma-boll-styles-and-ray-api.md) — tag `v0.1.1-candlex.2` |
+| phase-18.1 / D-29 | **IMPLEMENTED** [REQ-002](requests/REQ-002-toolbar-accessory-hide-screenshot-fullscreen.md) — toolbar accessory |
+| phase-19 | **IMPLEMENTED** [REQ-003](requests/REQ-003-reliable-symbol-period-reload.md) — symbol/period reload race |
+| D-30 / KLP-027 | **IMPLEMENTED** [REQ-004](requests/REQ-004-period-bar-icons-no-tf.md) — no TF chips, icon-only tools |
+| → consume | Suggested single tag **`v0.1.1-candlex.3`** (operator merges) |
 
 Full product method: candlex-klp [`docs/HOW-WE-WORK.md`](https://github.com/dgsis-tech/candlex-klp/blob/main/docs/HOW-WE-WORK.md).

@@ -87,9 +87,26 @@
       height: 16px;
       margin-right: 4px;
     }
+    &.icon-only {
+      padding: 0 10px;
+      svg {
+        margin-right: 0;
+      }
+    }
   }
   .period + .tools {
     border-left: solid 1px var(--klinecharts-pro-border-color);
     margin-left: 8px;
+  }
+  .toolbar-accessory {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    margin-left: auto;
+    height: 100%;
+    padding: 0 12px;
+    box-sizing: border-box;
+    min-width: 0;
   }
 }

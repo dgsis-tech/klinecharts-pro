@@ -33,6 +33,7 @@ new KLineChartPro(
 + `mainIndicators` Main indicators
 + `subIndicators` Sub indicators
 + `datafeed` Data access API implementation
++ `periodBar` Toolbar chrome (`showPeriods`, `showScreenshot`, `showFullscreen`, `toolsIconOnly`, `showToolbarAccessory`). Candlex defaults: no TF chips, no screenshot/fullscreen, icon-only tools, trailing accessory on.
 
 ## Chart API
 ### setTheme(theme)
@@ -162,3 +163,15 @@ Update an existing overlay by id (points, styles, extendData, …).
 (id: string) => void
 ```
 Remove an overlay by id and drop it from workspace tracking.
+
+### getToolbarAccessoryContainer()
+```typescript
+() => HTMLElement | null
+```
+Trailing period-bar mount for host DOM (countdown). Returns `null` if the accessory slot is disabled.
+
+### createIndicator(name, isStack?, paneOptions?)
+```typescript
+(name: string, isStack?: boolean, paneOptions?: { id?: string }) => string | null
+```
+Create an indicator with Pro tooltip icons. Returns pane id.
