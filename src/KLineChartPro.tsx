@@ -18,7 +18,7 @@ import { utils, Nullable, DeepPartial, Styles } from 'klinecharts'
 
 import ChartProComponent from './ChartProComponent'
 
-import { SymbolInfo, Period, ChartPro, ChartProOptions } from './types'
+import { SymbolInfo, Period, ChartPro, ChartProOptions, IndicatorOverride, OverlayCreateInput } from './types'
 import type { ChartWorkspace } from './workspace'
 
 const Logo = (
@@ -140,5 +140,25 @@ export default class KLineChartPro implements ChartPro {
 
   subscribeWorkspaceChange (callback: () => void): () => void {
     return this._chartApi!.subscribeWorkspaceChange(callback)
+  }
+
+  overrideIndicator (override: IndicatorOverride, paneId?: string): void {
+    this._chartApi!.overrideIndicator(override, paneId)
+  }
+
+  getIndicatorByPaneId (paneId?: string, name?: string): unknown {
+    return this._chartApi!.getIndicatorByPaneId(paneId, name)
+  }
+
+  createOverlay (overlay: OverlayCreateInput | string, paneId?: string): string | null {
+    return this._chartApi!.createOverlay(overlay, paneId)
+  }
+
+  overrideOverlay (override: { id: string } & Record<string, unknown>): void {
+    this._chartApi!.overrideOverlay(override)
+  }
+
+  removeOverlay (id: string): void {
+    this._chartApi!.removeOverlay(id)
   }
 }

@@ -26,6 +26,8 @@ export interface WorkspaceIndicator {
   visible?: boolean
   shortName?: string
   precision?: number
+  /** Per-instance indicator styles (MA lines, BOLL bands, …). Additive; schemaVersion stays 1. */
+  styles?: any
 }
 
 export interface WorkspaceOverlay {
@@ -85,13 +87,22 @@ export function collectIndicators (chart: Chart): WorkspaceIndicator[] {
       return
     }
     byName.forEach((indicator, name) => {
+      let styles: any
+      if (indicator?.styles && typeof indicator.styles === 'object') {
+        try {
+          styles = JSON.parse(JSON.stringify(indicator.styles))
+        } catch {
+          styles = undefined
+        }
+      }
       out.push({
         name: name || indicator?.name,
         paneId,
         calcParams: Array.isArray(indicator?.calcParams) ? [...indicator.calcParams] : undefined,
         visible: indicator?.visible,
         shortName: indicator?.shortName,
-        precision: indicator?.precision
+        precision: indicator?.precision,
+        styles
       })
     })
   })
@@ -230,6 +241,9 @@ export function applyIndicators (
     }
     if (typeof ind.visible === 'boolean') {
       override.visible = ind.visible
+    }
+    if (ind.styles && typeof ind.styles === 'object') {
+      override.styles = ind.styles
     }
     try {
       chart.overrideIndicator(override, onCandle ? 'candle_pane' : paneId)
