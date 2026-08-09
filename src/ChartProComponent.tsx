@@ -129,10 +129,15 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
     }
   }
 
-  const createOverlayTracked = (overlay: any, paneId?: string): void => {
-    const id = widget?.createOverlay(overlay, paneId) ?? null
-    trackOverlayId(id as any)
+  const createOverlayTracked = (overlay: any, paneId?: string): string | null => {
+    const created = widget?.createOverlay(overlay, paneId) ?? null
+    trackOverlayId(created as any)
     notifyWorkspaceChange()
+    if (Array.isArray(created)) {
+      const first = created.find(id => !!id)
+      return first ?? null
+    }
+    return created
   }
 
   props.ref({
@@ -213,6 +218,41 @@ const ChartProComponent: Component<ChartProComponentProps> = props => {
     subscribeWorkspaceChange: (callback: () => void): (() => void) => {
       workspaceListeners.add(callback)
       return () => { workspaceListeners.delete(callback) }
+    },
+    overrideIndicator: (override, paneId?: string): void => {
+      if (!widget || !override?.name) {
+        return
+      }
+      widget.overrideIndicator(override as any, paneId)
+      notifyWorkspaceChange()
+    },
+    getIndicatorByPaneId: (paneId?: string, name?: string): unknown => {
+      return widget?.getIndicatorByPaneId(paneId, name) ?? null
+    },
+    createOverlay: (overlay, paneId?: string): string | null => {
+      if (!widget) {
+        return null
+      }
+      return createOverlayTracked(overlay, paneId)
+    },
+    overrideOverlay: (override): void => {
+      if (!widget || !override?.id) {
+        return
+      }
+      widget.overrideOverlay(override as any)
+      notifyWorkspaceChange()
+    },
+    removeOverlay: (id: string): void => {
+      if (!widget || !id) {
+        return
+      }
+      try {
+        widget.removeOverlay(id)
+      } catch {
+        // ignore
+      }
+      overlayIds.delete(id)
+      notifyWorkspaceChange()
     }
   })
 

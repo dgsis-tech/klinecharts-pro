@@ -1,6 +1,6 @@
 # REQ-001 — MA/BOLL per-line styles + Ray overlay API (Candlex KLP phase-9.1)
 
-> **Status:** OPEN — implementation requested from this Dev Container  
+> **Status:** IMPLEMENTED — awaiting operator merge + tag `v0.1.1-candlex.2`  
 > **Requested by:** Candlex KLP Planner (docs-only PR; do **not** treat this PR as “docs complete”)  
 > **Consumer:** [candlex-klp](https://github.com/dgsis-tech/candlex-klp) · phase [`phase-9.1.md`](https://github.com/dgsis-tech/candlex-klp/blob/main/docs/phases/phase-9.1.md)  
 > **Blocked consumer pin:** `v0.1.1-candlex.1`  
@@ -210,11 +210,11 @@ interface ChartPro {
 
 ### R5 — Tests, build, typings, docs
 
-- [ ] `npm test` green (include new workspace style round-trip cases)
-- [ ] `npm run build` green; UMD + `index.d.ts` export the new `ChartPro` methods
-- [ ] Update [`docs/DEVELOPMENT.md`](../DEVELOPMENT.md) “Workspace export / import” + API notes with the **Final API** section below filled in after implementation
-- [ ] Update English API notes if maintained (`docs/en-US/…`) when applicable
-- [ ] PR description / this file lists suggested consume tag `v0.1.1-candlex.2`
+- [x] `npm test` green (include new workspace style round-trip cases)
+- [x] `npm run build` green; UMD + `index.d.ts` export the new `ChartPro` methods
+- [x] Update [`docs/DEVELOPMENT.md`](../DEVELOPMENT.md) “Workspace export / import” + API notes with the **Final API** section below filled in after implementation
+- [x] Update English API notes if maintained (`docs/en-US/…`) when applicable
+- [x] PR description / this file lists suggested consume tag `v0.1.1-candlex.2`
 
 ---
 
@@ -239,39 +239,151 @@ interface ChartPro {
 
 ## Acceptance checklist (fork)
 
-- [ ] R1 MA: color + size for ≤5 lines via public ChartPro API
-- [ ] R1 BOLL: mid + upper + lower colors via public ChartPro API
-- [ ] R2 `WorkspaceIndicator.styles` collect/apply + export/import round-trip
-- [ ] R3 UI extended **or** Final API section complete for programmatic-only
-- [ ] R4 create/update/remove Ray (or documented equivalent) + workspace tracking
-- [ ] R5 tests + build + typings + docs updated
-- [ ] Suggested tag noted for operator: `v0.1.1-candlex.2`
+- [x] R1 MA: color + size for ≤5 lines via public ChartPro API
+- [x] R1 BOLL: mid + upper + lower colors via public ChartPro API
+- [x] R2 `WorkspaceIndicator.styles` collect/apply + export/import round-trip
+- [x] R3 UI extended **or** Final API section complete for programmatic-only
+- [x] R4 create/update/remove Ray (or documented equivalent) + workspace tracking
+- [x] R5 tests + build + typings + docs updated
+- [x] Suggested tag noted for operator: `v0.1.1-candlex.2`
 
 ---
 
-## Final API (fill after implementation)
+## Final API
 
-> Implementers: replace this section with the **exact** signatures and a minimal host example before merge.
+> Shipped in this PR. Schema stays **`WORKSPACE_SCHEMA_VERSION = 1`** with additive optional `WorkspaceIndicator.styles` (backward compatible). Suggested consume tag: **`v0.1.1-candlex.2`**.
 
 ```ts
-// TODO after implementation
+import type { DeepPartial, IndicatorStyle, OverlayStyle } from 'klinecharts'
+import type { ChartPro, IndicatorOverride, OverlayCreateInput, ChartWorkspace } from '@klinecharts/pro'
+
+interface ChartPro {
+  // …existing theme/locale/timezone/symbol/period/styles…
+
+  exportWorkspace(): ChartWorkspace
+  importWorkspace(workspace: ChartWorkspace | Record<string, unknown>): void
+  subscribeWorkspaceChange(callback: () => void): () => void
+
+  overrideIndicator(override: IndicatorOverride, paneId?: string): void
+  getIndicatorByPaneId(paneId?: string, name?: string): unknown
+
+  createOverlay(overlay: OverlayCreateInput | string, paneId?: string): string | null
+  overrideOverlay(override: { id: string } & Record<string, unknown>): void
+  removeOverlay(id: string): void
+}
+
+interface IndicatorOverride {
+  name: string
+  calcParams?: unknown[]
+  visible?: boolean
+  styles?: DeepPartial<IndicatorStyle>
+}
+
+interface OverlayCreateInput {
+  name: string
+  id?: string
+  groupId?: string
+  points?: Array<{ timestamp?: number, dataIndex?: number, value?: number }>
+  lock?: boolean
+  visible?: boolean
+  zLevel?: number
+  mode?: string
+  extendData?: unknown
+  styles?: DeepPartial<OverlayStyle> | Record<string, unknown>
+}
+
+interface WorkspaceIndicator {
+  name: string
+  paneId: string
+  calcParams?: any[]
+  visible?: boolean
+  shortName?: string
+  precision?: number
+  styles?: any  // DeepPartial<IndicatorStyle> when serializable
+}
 ```
 
 ```js
-// Minimal candlex-klp host smoke (UMD global name as built today)
-// TODO: paste copy-paste example using overrideIndicator + createOverlay Ray
+// Minimal candlex-klp host smoke (UMD global: klinechartspro)
+const chart = window.__candlexChart // KLineChartPro instance
+
+// MA — up to 5 lines; each color + size
+chart.overrideIndicator({
+  name: 'MA',
+  styles: {
+    lines: [
+      { color: '#f44336', size: 2 },
+      { color: '#2196f3', size: 1 },
+      { color: '#4caf50', size: 1 },
+      { color: '#ff9800', size: 1 },
+      { color: '#9c27b0', size: 1 }
+    ]
+  }
+}, 'candle_pane')
+
+// BOLL — UP / MID / DN colors (indices 0 / 1 / 2)
+chart.overrideIndicator({
+  name: 'BOLL',
+  styles: {
+    lines: [
+      { color: '#e91e63' }, // upper
+      { color: '#00bcd4' }, // middle
+      { color: '#8bc34a' }  // lower
+    ]
+  }
+}, 'candle_pane')
+
+// Previous-day high as horizontal ray (two points, same value; 2nd to the right)
+const rayId = chart.createOverlay({
+  name: 'horizontalRayLine',
+  points: [
+    { timestamp: Date.UTC(2024, 0, 1), value: 42000 },
+    { timestamp: Date.UTC(2024, 0, 1, 1), value: 42000 }
+  ],
+  styles: { line: { color: '#ffeb3b', size: 2 } },
+  lock: true,
+  extendData: { kind: 'prev_day_high' }
+}, 'candle_pane')
+
+chart.overrideOverlay({
+  id: rayId,
+  points: [
+    { timestamp: Date.UTC(2024, 0, 2), value: 43100 },
+    { timestamp: Date.UTC(2024, 0, 2, 1), value: 43100 }
+  ]
+})
+
+chart.removeOverlay(rayId)
+
+// Workspace round-trip preserves indicator.styles + overlays
+const ws = chart.exportWorkspace()
+chart.importWorkspace(ws)
 ```
 
 ### Overlay template name for Rays
 
-- **Name string:** `TODO`
-- **Points convention:** `TODO` (e.g. one point `{ timestamp, value }` vs two points)
+- **Name string:** `horizontalRayLine` (klinecharts builtin; also available: `rayLine`, `verticalRayLine`, `priceLine`)
+- **Points convention:** **two** points `{ timestamp, value }` at the **same** price. The second point’s x (timestamp) relative to the first chooses direction: if `p1.x > p0.x`, the ray extends to the right edge; otherwise to the left. Stroke: `styles.line.color` / `styles.line.size`.
 
 ### BOLL styles shape
 
 ```ts
-// TODO document exact styles object for mid/upper/lower colors
+// figures order in klinecharts 9.8.12 BOLL: up, mid, dn → lines[0], lines[1], lines[2]
+chart.overrideIndicator({
+  name: 'BOLL',
+  styles: {
+    lines: [
+      { color: '#upper' }, // UP
+      { color: '#mid' },   // MID
+      { color: '#lower' }  // DN
+    ]
+  }
+}, 'candle_pane')
 ```
+
+### R3 note
+
+Pro indicator-setting modal UI for MA size / BOLL colors is **deferred**; host (candlex-klp phase-9.2) should use `overrideIndicator` as above. Programmatic path is the supported merge path.
 
 ---
 

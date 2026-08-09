@@ -47,6 +47,59 @@ describe('workspace', () => {
     expect(again.overlays[0].points[0].timestamp).toBe(1)
   })
 
+  it('normalizeWorkspace preserves indicator styles (MA lines + BOLL bands)', () => {
+    const raw = {
+      schemaVersion: 1,
+      indicators: [
+        {
+          name: 'MA',
+          paneId: 'candle_pane',
+          calcParams: [5, 10, 20, 30, 60],
+          styles: {
+            lines: [
+              { color: '#f44336', size: 2 },
+              { color: '#2196f3', size: 1 },
+              { color: '#4caf50', size: 1 },
+              { color: '#ff9800', size: 1 },
+              { color: '#9c27b0', size: 1 }
+            ]
+          }
+        },
+        {
+          name: 'BOLL',
+          paneId: 'candle_pane',
+          calcParams: [20, 2],
+          styles: {
+            lines: [
+              { color: '#e91e63' },
+              { color: '#00bcd4' },
+              { color: '#8bc34a' }
+            ]
+          }
+        }
+      ],
+      overlays: [
+        {
+          name: 'horizontalRayLine',
+          points: [
+            { timestamp: 1700000000000, value: 42000 },
+            { timestamp: 1700003600000, value: 42000 }
+          ],
+          styles: { line: { color: '#ffeb3b', size: 2 } }
+        }
+      ]
+    }
+    const ws = normalizeWorkspace(raw)
+    expect(ws.schemaVersion).toBe(1)
+    expect(ws.indicators[0].styles.lines[0]).toEqual({ color: '#f44336', size: 2 })
+    expect(ws.indicators[1].styles.lines).toHaveLength(3)
+    expect(ws.indicators[1].styles.lines[1].color).toBe('#00bcd4')
+    const again = normalizeWorkspace(JSON.parse(JSON.stringify(ws)))
+    expect(again.indicators[0].styles.lines[4].color).toBe('#9c27b0')
+    expect(again.overlays[0].name).toBe('horizontalRayLine')
+    expect(again.overlays[0].styles.line.size).toBe(2)
+  })
+
   it('normalizeWorkspace tolerates junk', () => {
     expect(normalizeWorkspace(null).schemaVersion).toBe(1)
     expect(normalizeWorkspace({ indicators: 'x' }).indicators).toEqual([])

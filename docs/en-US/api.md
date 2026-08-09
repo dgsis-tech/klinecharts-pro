@@ -106,3 +106,59 @@ Set period.
 () => Period
 ```
 Get period.
+
+### exportWorkspace()
+```typescript
+() => ChartWorkspace
+```
+Export indicators (including per-instance `styles`), overlays, and chart settings. Does not include OHLC.
+
+### importWorkspace(workspace)
+```typescript
+(workspace: ChartWorkspace | Record<string, unknown>) => void
+```
+Restore a workspace JSON (`schemaVersion` = `1`; `WorkspaceIndicator.styles` is additive/optional).
+
+### subscribeWorkspaceChange(callback)
+```typescript
+(callback: () => void) => () => void
+```
+Subscribe to indicator/overlay/settings mutations (host auto-save). Returns unsubscribe.
+
+### overrideIndicator(override, paneId?)
+```typescript
+(
+  override: {
+    name: string
+    calcParams?: unknown[]
+    visible?: boolean
+    styles?: DeepPartial<IndicatorStyle>
+  },
+  paneId?: string
+) => void
+```
+Override a live indicator instance. MA: `styles.lines[0..4]` with `color` + `size`. BOLL: `styles.lines[0]=UP`, `[1]=MID`, `[2]=DN`.
+
+### getIndicatorByPaneId(paneId?, name?)
+```typescript
+(paneId?: string, name?: string) => unknown
+```
+Read indicator(s) from the underlying chart.
+
+### createOverlay(overlay, paneId?)
+```typescript
+(overlay: OverlayCreateInput | string, paneId?: string) => string | null
+```
+Create an overlay and track its id for workspace export. For previous-day H/L/C rays use `name: 'horizontalRayLine'` with two points at the same `value`.
+
+### overrideOverlay(override)
+```typescript
+(override: { id: string } & Record<string, unknown>) => void
+```
+Update an existing overlay by id (points, styles, extendData, …).
+
+### removeOverlay(id)
+```typescript
+(id: string) => void
+```
+Remove an overlay by id and drop it from workspace tracking.

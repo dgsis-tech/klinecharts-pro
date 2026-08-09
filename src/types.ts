@@ -12,9 +12,35 @@
  * limitations under the License.
  */
 
-import { KLineData, Styles, DeepPartial } from 'klinecharts'
+import { KLineData, Styles, DeepPartial, IndicatorStyle, OverlayStyle } from 'klinecharts'
 
 import type { ChartWorkspace } from './workspace'
+
+/** Host override payload for ChartPro.overrideIndicator (forwards to klinecharts). */
+export interface IndicatorOverride {
+  name: string
+  calcParams?: unknown[]
+  visible?: boolean
+  styles?: DeepPartial<IndicatorStyle>
+  shortName?: string
+  precision?: number
+  [key: string]: unknown
+}
+
+/** Host overlay create payload (forwards to klinecharts createOverlay + workspace tracking). */
+export interface OverlayCreateInput {
+  name: string
+  id?: string
+  groupId?: string
+  points?: Array<{ timestamp?: number, dataIndex?: number, value?: number }>
+  lock?: boolean
+  visible?: boolean
+  zLevel?: number
+  mode?: string
+  extendData?: unknown
+  styles?: DeepPartial<OverlayStyle> | Record<string, unknown>
+  [key: string]: unknown
+}
 
 export interface SymbolInfo {
   ticker: string
@@ -79,5 +105,21 @@ export interface ChartPro {
   importWorkspace(workspace: ChartWorkspace | Record<string, unknown>): void
   /** Notify host on indicator/overlay/settings mutations (for auto-save). */
   subscribeWorkspaceChange(callback: () => void): () => void
+  /**
+   * Override an indicator instance (calcParams and/or styles).
+   * Forwards to klinecharts Chart.overrideIndicator; notifies workspace listeners.
+   */
+  overrideIndicator(override: IndicatorOverride, paneId?: string): void
+  /** Read indicators by pane (wraps klinecharts getIndicatorByPaneId). */
+  getIndicatorByPaneId(paneId?: string, name?: string): unknown
+  /**
+   * Create an overlay and track its id for workspace export.
+   * Returns the overlay id, or null on failure.
+   */
+  createOverlay(overlay: OverlayCreateInput | string, paneId?: string): string | null
+  /** Update an existing overlay (points/styles/extendData/…). */
+  overrideOverlay(override: { id: string } & Record<string, unknown>): void
+  /** Remove overlay by id and drop it from workspace tracking. */
+  removeOverlay(id: string): void
 }
 

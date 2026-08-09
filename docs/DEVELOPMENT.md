@@ -53,15 +53,26 @@ Public API on `KLineChartPro` (also on the Solid chart ref):
 
 | Method | Role |
 | --- | --- |
-| `exportWorkspace()` | JSON: indicators + overlays + theme/locale/timezone/drawingBarVisible/styles/symbol/period. **No OHLC.** |
-| `importWorkspace(ws)` | Restore from that JSON (`schemaVersion` = `1`). Idempotent best-effort; overlays that cannot rehydrate are skipped. |
+| `exportWorkspace()` | JSON: indicators (+ optional per-instance `styles`) + overlays + theme/locale/timezone/drawingBarVisible/styles/symbol/period. **No OHLC.** |
+| `importWorkspace(ws)` | Restore from that JSON (`schemaVersion` = `1`, additive `WorkspaceIndicator.styles`). Idempotent best-effort; overlays that cannot rehydrate are skipped. |
 | `subscribeWorkspaceChange(cb)` | Fires after indicator/overlay/settings mutations (for host auto-save). Returns unsubscribe. |
+| `overrideIndicator(override, paneId?)` | Per-instance indicator override (`calcParams` / `visible` / `styles`). Forwards to klinecharts; notifies workspace listeners. |
+| `getIndicatorByPaneId(paneId?, name?)` | Read live indicator(s) for host sync/debug. |
+| `createOverlay(overlay, paneId?)` | Create overlay and **track** id for workspace export. Returns id or `null`. |
+| `overrideOverlay({ id, … })` | Update overlay points/styles/extendData by id. |
+| `removeOverlay(id)` | Remove overlay and drop from workspace tracking. |
 
-Helpers exported: `WORKSPACE_SCHEMA_VERSION`, `normalizeWorkspace`, `emptyWorkspace`, types `ChartWorkspace`, …
+Helpers exported: `WORKSPACE_SCHEMA_VERSION`, `normalizeWorkspace`, `emptyWorkspace`, types `ChartWorkspace`, `IndicatorOverride`, `OverlayCreateInput`, …
+
+**MA / BOLL styles:** pass `styles.lines[i].color` and `.size` (MA: up to 5 lines; BOLL: `lines[0]=UP`, `lines[1]=MID`, `lines[2]=DN`).
+
+**Rays (phase-10):** template name `horizontalRayLine` with two points `{ timestamp, value }` at the same price (second point to the right sets ray direction). Stroke via `styles.line.color` / `styles.line.size`.
+
+Full signatures + host smoke: [`REQ-001` Final API](requests/REQ-001-ma-boll-styles-and-ray-api.md#final-api-fill-after-implementation). Suggested consume tag: `v0.1.1-candlex.2`.
 
 Limitations:
 
-- Overlay inventory is tracked from Pro UI create/remove paths (klinecharts has no public “list all overlays”).
+- Overlay inventory is tracked from Pro UI create paths **and** host `createOverlay` / `removeOverlay` (klinecharts has no public “list all overlays”).
 - Function fields and non-JSON styles are not persisted.
 - Round-trip of complex custom overlays depends on registered overlay templates.
 
@@ -77,6 +88,6 @@ npm run build
 | phase-3 | Bootstrap fork + pin; candlex-klp mount + stub feed |
 | phase-4 | DataHub datafeed (mostly host; fork may need datafeed adapter hooks) |
 | phase-5 | Persistence hooks (export/import indicators/overlays) — shipped as `v0.1.1-candlex.1` |
-| phase-9.1 | **OPEN request** [REQ-001](requests/REQ-001-ma-boll-styles-and-ray-api.md) — MA/BOLL styles + Ray API → suggested tag `v0.1.1-candlex.2` |
+| phase-9.1 | **IMPLEMENTED** [REQ-001](requests/REQ-001-ma-boll-styles-and-ray-api.md) — MA/BOLL styles + Ray API → suggested tag `v0.1.1-candlex.2` (operator merges/tags) |
 
 Full product method: candlex-klp [`docs/HOW-WE-WORK.md`](https://github.com/dgsis-tech/candlex-klp/blob/main/docs/HOW-WE-WORK.md).
