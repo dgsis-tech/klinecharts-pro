@@ -40,11 +40,12 @@ Artifacts under `dist/` (`klinecharts-pro.umd.js`, CSS, typings).
 ## Change control (mandatory)
 
 1. **Do not push straight to `main`** for product changes (except rare operator hotfixes).
-2. Agents / planners **open a Pull Request** against this repo with the proposed diff.
-3. The operator **reviews, builds, and merges in this Dev Container environment** so integration is validated here before candlex-klp bumps `CHART_REF` / tag.
-4. After merge, cut or move a **consumable tag** when candlex-klp should pick up the change (e.g. `v0.1.1-candlex.1`). Document the new pin in candlex-klp `third_party/CHART_PIN`.
+2. **Candlex KLP Planner** opens a **docs request PR** under [`docs/requests/`](requests/) describing the binding API/behavior (no Pro source implementation from the product host chat).
+3. **This Dev Container** checks out that PR, implements the code, updates the request’s “Final API” section, runs `npm test` / `npm run build`, and pushes onto the **same PR branch**.
+4. The operator **reviews, builds, and merges in this Dev Container** before candlex-klp bumps `CHART_REF` / tag.
+5. After merge, publish a **consumable tag** when candlex-klp should pick up the change (e.g. `v0.1.1-candlex.2`). Document the new pin in candlex-klp `third_party/CHART_PIN`.
 
-See also [`CONTRIBUTING.md`](../CONTRIBUTING.md).
+See also [`CONTRIBUTING.md`](../CONTRIBUTING.md) and [`docs/requests/README.md`](requests/README.md).
 
 ## Workspace export / import (Candlex KLP persistence)
 
@@ -75,6 +76,7 @@ npm run build
 | --- | --- |
 | phase-3 | Bootstrap fork + pin; candlex-klp mount + stub feed |
 | phase-4 | DataHub datafeed (mostly host; fork may need datafeed adapter hooks) |
-| phase-5 | Persistence hooks (export/import indicators/overlays) — **primary fork work** |
+| phase-5 | Persistence hooks (export/import indicators/overlays) — shipped as `v0.1.1-candlex.1` |
+| phase-9.1 | **OPEN request** [REQ-001](requests/REQ-001-ma-boll-styles-and-ray-api.md) — MA/BOLL styles + Ray API → suggested tag `v0.1.1-candlex.2` |
 
 Full product method: candlex-klp [`docs/HOW-WE-WORK.md`](https://github.com/dgsis-tech/candlex-klp/blob/main/docs/HOW-WE-WORK.md).

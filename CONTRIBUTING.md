@@ -8,9 +8,20 @@
 4. Keep **`klinecharts@9.8.12`** until Candlex explicitly revisits D-12 (no silent jump to v10).
 5. Commits: Conventional Commits in **English**.
 
+## Two kinds of PRs
+
+| Kind | Who opens | Contents |
+| --- | --- | --- |
+| **Request (docs)** | Candlex KLP Planner | `docs/requests/REQ-*.md` + index/workflow links — binding spec |
+| **Implementation** | This Dev Container (same PR branch preferred) | Code + tests + “Final API” filled in the request doc |
+
+Prefer **one PR**: request docs first, then implementation commits on the same branch before merge.
+
 ## PR checklist
 
+- [ ] Request doc under `docs/requests/` is complete (or linked) when the change is Candlex-driven
 - [ ] Built with `npm ci && npm run build` in the Dev Container
+- [ ] `npm test` green when workspace/API behavior changes
 - [ ] `UPSTREAM.md` still accurate if pins/provenance changed
 - [ ] No secrets in `.dev/.env` committed
 - [ ] Notes for candlex-klp: whether a **new tag** is required and suggested name
