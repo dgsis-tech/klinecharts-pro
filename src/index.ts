@@ -21,9 +21,15 @@ import KLineChartPro from './KLineChartPro'
 
 import { load } from './i18n'
 
-import { Datafeed, SymbolInfo, Period, DatafeedSubscribeCallback, ChartProOptions, ChartPro, IndicatorOverride, OverlayCreateInput, PeriodBarOptions, DEFAULT_PERIOD_BAR_OPTIONS, resolvePeriodBarOptions } from './types'
+import { Datafeed, SymbolInfo, Period, DatafeedSubscribeCallback, ChartProOptions, ChartPro, IndicatorOverride, OverlayCreateInput, PeriodBarOptions, TimezoneOption, DEFAULT_PERIOD_BAR_OPTIONS, resolvePeriodBarOptions } from './types'
 import type { ChartWorkspace, WorkspaceIndicator, WorkspaceOverlay } from './workspace'
 import { WORKSPACE_SCHEMA_VERSION, normalizeWorkspace, emptyWorkspace } from './workspace'
+import {
+  CURATED_TIMEZONE_KEYS,
+  DEFAULT_CURATED_TIMEZONE,
+  resolveTimezoneKey,
+  createCuratedTimezoneSelectOptions
+} from './widget/timezone-modal/data'
 
 import './index.less'
 
@@ -37,11 +43,15 @@ export {
   normalizeWorkspace,
   emptyWorkspace,
   DEFAULT_PERIOD_BAR_OPTIONS,
-  resolvePeriodBarOptions
+  resolvePeriodBarOptions,
+  CURATED_TIMEZONE_KEYS,
+  DEFAULT_CURATED_TIMEZONE,
+  resolveTimezoneKey,
+  createCuratedTimezoneSelectOptions
 }
 
 export type {
   Datafeed, SymbolInfo, Period, DatafeedSubscribeCallback, ChartProOptions, ChartPro,
-  IndicatorOverride, OverlayCreateInput, PeriodBarOptions,
+  IndicatorOverride, OverlayCreateInput, PeriodBarOptions, TimezoneOption,
   ChartWorkspace, WorkspaceIndicator, WorkspaceOverlay
 }

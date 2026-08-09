@@ -80,12 +80,15 @@ Constructor option `periodBar` (Candlex defaults):
 | `showScreenshot` / `showFullscreen` | `false` | Do not mount those tools |
 | `toolsIconOnly` | `true` | Indicator / timezone / setting as icons + `aria-label` |
 | `showToolbarAccessory` | `true` | Trailing host mount |
+| `showPeriodLabel` | `false` | Read-only TF text beside instrument (REQ-005; Candlex → `true`) |
+
+`timezoneCurated: true` → modal only `Etc/UTC` / `America/New_York` / `Europe/Madrid`; omitted or out-of-list TZ → `Etc/UTC`.
 
 `getToolbarAccessoryContainer()` → `HTMLElement | null` for countdown DOM.  
 `createIndicator(name, isStack?, paneOptions?)` → pane id (avoids full `importWorkspace` for MA/BOLL).  
 `setPeriod` / `setSymbol` never silently drop while history/`loadMore` is in flight (generation gate).
 
-Suggested consume tag for this train: **`v0.2.0`** (package `0.2.0`). Specs: [REQ-002](requests/REQ-002-toolbar-accessory-hide-screenshot-fullscreen.md), [REQ-003](requests/REQ-003-reliable-symbol-period-reload.md), [REQ-004](requests/REQ-004-period-bar-icons-no-tf.md).
+Suggested consume tag for REQ-005: **`v0.2.1`**. Spec: [REQ-005](requests/REQ-005-period-label-timezone-curated.md).
 
 Limitations:
 
@@ -109,6 +112,7 @@ npm run build
 | phase-18.1 / D-29 | **IMPLEMENTED** [REQ-002](requests/REQ-002-toolbar-accessory-hide-screenshot-fullscreen.md) — toolbar accessory |
 | phase-19 | **IMPLEMENTED** [REQ-003](requests/REQ-003-reliable-symbol-period-reload.md) — symbol/period reload race |
 | D-30 / KLP-027 | **IMPLEMENTED** [REQ-004](requests/REQ-004-period-bar-icons-no-tf.md) — no TF chips, icon-only tools |
-| → consume | Package **`0.2.0`** · suggested tag **`v0.2.0`** (operator merges) |
+| → consume | Package **`0.2.1`** · suggested tag **`v0.2.1`** (REQ-005; operator merges) |
+| D-31 / KLP-029 | **IMPLEMENTED** [REQ-005](requests/REQ-005-period-label-timezone-curated.md) — period label + curated TZ |
 
 Full product method: candlex-klp [`docs/HOW-WE-WORK.md`](https://github.com/dgsis-tech/candlex-klp/blob/main/docs/HOW-WE-WORK.md).

@@ -20,6 +20,7 @@ import ChartProComponent from './ChartProComponent'
 
 import { SymbolInfo, Period, ChartPro, ChartProOptions, IndicatorOverride, OverlayCreateInput } from './types'
 import type { ChartWorkspace } from './workspace'
+import { resolveTimezoneKey } from './widget/timezone-modal/data'
 
 const Logo = (
   <svg class="logo" viewBox="0 0 80 92">
@@ -41,6 +42,11 @@ export default class KLineChartPro implements ChartPro {
     }
     this._container.classList.add('klinecharts-pro')
     this._container.setAttribute('data-theme', options.theme ?? 'light')
+
+    const resolvedTimezone = resolveTimezoneKey(options.timezone, {
+      curated: options.timezoneCurated === true,
+      allowedKeys: options.timezoneSelectOptions?.map(o => o.key)
+    })
 
     render(
       () => (
@@ -67,7 +73,9 @@ export default class KLineChartPro implements ChartPro {
               { multiplier: 1, timespan: 'year', text: 'Y' }
             ]
           }
-          timezone={options.timezone ?? 'Asia/Shanghai'}
+          timezone={resolvedTimezone}
+          timezoneCurated={options.timezoneCurated}
+          timezoneSelectOptions={options.timezoneSelectOptions}
           mainIndicators={options.mainIndicators ?? ['MA']}
           subIndicators={options.subIndicators ?? ['VOL']}
           periodBar={options.periodBar}

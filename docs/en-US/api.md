@@ -33,7 +33,9 @@ new KLineChartPro(
 + `mainIndicators` Main indicators
 + `subIndicators` Sub indicators
 + `datafeed` Data access API implementation
-+ `periodBar` Toolbar chrome (`showPeriods`, `showScreenshot`, `showFullscreen`, `toolsIconOnly`, `showToolbarAccessory`). Candlex defaults: no TF chips, no screenshot/fullscreen, icon-only tools, trailing accessory on.
++ `periodBar` Toolbar chrome (`showPeriods`, `showScreenshot`, `showFullscreen`, `toolsIconOnly`, `showToolbarAccessory`, `showPeriodLabel`). Candlex: no TF chips, period label on, no screenshot/fullscreen, icon-only tools, trailing accessory on.
++ `timezoneCurated` When `true`, timezone modal only lists UTC / New York / Madrid; omitted or out-of-list TZ falls back to `Etc/UTC`.
++ `timezoneSelectOptions` Optional full override of timezone modal options (wins over `timezoneCurated`).
 
 ## Chart API
 ### setTheme(theme)
